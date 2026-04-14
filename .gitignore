@@ -1,0 +1,49 @@
+# Android
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizard.settings.xml
+.externalNativeBuild
+.cxx
+local.properties
+
+# Build
+build/
+app/build/
+
+# Kotlin
+*.kotlin_module
+
+# Gradle
+.gradle/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+# Java
+*.class
+
+# OS
+.DS_Store
+.directory
+.Trash-*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv
+venv/
+ENV/
+env/
+.env
+
+# RoadWords Specific
+tools/vocabulary_backup.db
+*.log
