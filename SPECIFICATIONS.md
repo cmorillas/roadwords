@@ -355,15 +355,16 @@ a perfect corpus rank.
 
 ```bash
 # VPS with SDKMAN
-export JAVA_HOME=/home/cesar/.sdkman/candidates/java/current
-# Android SDK path in /home/cesar/Android/Sdk (via sdkmanager)
+# VPS Configuration
+export JAVA_HOME=~/.sdkman/candidates/java/current
+# Android SDK path in ~/Android/Sdk (via sdkmanager)
 ```
 
 ### 8.2 Build
 
 ```bash
-cd /home/cesar/php/tutor/RoadWordsApp
-JAVA_HOME=/home/cesar/.sdkman/candidates/java/current ./gradlew assembleDebug
+cd ~/path/to/RoadWordsApp
+JAVA_HOME=~/.sdkman/candidates/java/current ./gradlew assembleDebug
 ```
 
 ### 8.3 Publish
@@ -375,14 +376,14 @@ cp app/build/outputs/apk/debug/app-debug.apk releases/RoadWords.apk
 
 ### 8.4 Local Server (for phone installation over HTTPS)
 
-Run the following command to serve the downloaded `.apk` to your phone. The certificate generated for the old tutor app is perfectly reusable here:
+Run the following command to serve the downloaded `.apk` to your phone. Ensure you have your SSL certificate available:
 
 ```bash
-cd /home/cesar/Phone/RoadWords/releases
-sudo bash -c "(trap 'kill 0' SIGINT; php -S 127.0.0.1:8000 & socat OPENSSL-LISTEN:443,reuseaddr,fork,cert=/home/cesar/php/tutor/data/ssl_combined.pem,verify=0 TCP:127.0.0.1:8000)"
+cd releases
+sudo bash -c "(trap 'kill 0' SIGINT; php -S 127.0.0.1:8000 & socat OPENSSL-LISTEN:443,reuseaddr,fork,cert=/path/to/your/certificate.pem,verify=0 TCP:127.0.0.1:8000)"
 ```
 
-**Accessible at:** `https://green.telytec.com/RoadWords.apk`
+**Accessible at:** `https://[YOUR_DOMAIN_OR_IP]/RoadWords.apk`
 
 ### 8.5 Installation
 
