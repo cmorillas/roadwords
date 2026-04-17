@@ -373,7 +373,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         mazoNumber++
 
         // Play celebration
-        soundManager.playLearned()
+        soundManager.playFanfare()
 
         // TTS celebration
         ttsManager.speakAndWait("¡Mazo completado! Muy bien.", isEnglish = false)

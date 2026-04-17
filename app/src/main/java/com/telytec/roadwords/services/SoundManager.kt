@@ -15,6 +15,7 @@ class SoundManager(context: Context) {
     private val correctId: Int
     private val incorrectId: Int
     private val learnedId: Int
+    private val fanfareId: Int
 
     init {
         val attrs = AudioAttributes.Builder()
@@ -29,7 +30,8 @@ class SoundManager(context: Context) {
 
         correctId = soundPool.load(context, com.telytec.roadwords.R.raw.correct, 1)
         incorrectId = soundPool.load(context, com.telytec.roadwords.R.raw.incorrect, 1)
-        learnedId = soundPool.load(context, com.telytec.roadwords.R.raw.learned, 1)
+        learnedId = soundPool.load(context, com.telytec.roadwords.R.raw.learned_new, 1)
+        fanfareId = soundPool.load(context, com.telytec.roadwords.R.raw.fanfare, 1)
     }
 
     fun playCorrect() {
@@ -41,7 +43,11 @@ class SoundManager(context: Context) {
     }
 
     fun playLearned() {
-        soundPool.play(learnedId, 0.6f, 0.6f, 1, 0, 1f)
+        soundPool.play(learnedId, 0.9f, 0.9f, 1, 0, 1f)
+    }
+
+    fun playFanfare() {
+        soundPool.play(fanfareId, 0.9f, 0.9f, 1, 0, 1f)
     }
 
     fun release() {
