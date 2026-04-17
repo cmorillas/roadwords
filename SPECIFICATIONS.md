@@ -369,11 +369,22 @@ JAVA_HOME=/home/cesar/.sdkman/candidates/java/current ./gradlew assembleDebug
 ### 8.3 Publish
 
 ```bash
-cp app/build/outputs/apk/debug/app-debug.apk /home/cesar/php/tutor/RoadWords.apk
-# Accessible at: https://green.telytec.com/RoadWords.apk
+mkdir -p releases
+cp app/build/outputs/apk/debug/app-debug.apk releases/RoadWords.apk
 ```
 
-### 8.4 Installation
+### 8.4 Local Server (for phone installation over HTTPS)
+
+Run the following command to serve the downloaded `.apk` to your phone. The certificate generated for the old tutor app is perfectly reusable here:
+
+```bash
+cd /home/cesar/Phone/RoadWords/releases
+sudo bash -c "(trap 'kill 0' SIGINT; php -S 127.0.0.1:8000 & socat OPENSSL-LISTEN:443,reuseaddr,fork,cert=/home/cesar/php/tutor/data/ssl_combined.pem,verify=0 TCP:127.0.0.1:8000)"
+```
+
+**Accessible at:** `https://green.telytec.com/RoadWords.apk`
+
+### 8.5 Installation
 
 The app has not been distributed yet, so Room starts at schema version 1 and no
 migration path is maintained at this stage.
