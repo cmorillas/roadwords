@@ -13,17 +13,17 @@ import time
 import os
 
 API_KEY = os.environ.get("GEMINI_API_KEY", "")
-DB_PATH = "/home/cesar/php/tutor/RoadWordsApp/app/src/main/assets/vocabulary.db"
+DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "assets", "vocabulary.db"))
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
 
 # How many words per level
 LEVEL_COUNTS = {
-    "A1": 150,
-    "A2": 200,
-    "B1": 300,
-    "B2": 400,
-    "C1": 350,
-    "C2": 200,
+    "A1": 125,
+    "A2": 110,
+    "B1": 175,
+    "B2": 170,
+    "C1": 130,
+    "C2": 90,
 }
 
 BATCH_SIZE = 40  # words per API call
@@ -134,16 +134,18 @@ Respond ONLY with a valid JSON array:
     
     return []
 
-def insert_words(conn, words, level):
+def insert_words(conn, words, level, limit=None):
     inserted = 0
     for w in words:
+        if limit is not None and inserted >= limit:
+            break
         try:
             english = w.get("english_word", "").strip()
             spanish = w.get("spanish_translation", "").strip()
             if not english or not spanish:
                 continue
 
-            conn.execute("""
+            cursor = conn.execute("""
                 INSERT OR IGNORE INTO words 
                 (english, spanish, spanish_alts, cefr_level, is_phrasal_verb, 
                  part_of_speech, category, frequency_rank, example_en, example_en_2, example_en_3)
@@ -161,7 +163,8 @@ def insert_words(conn, words, level):
                 w.get("example_en_2", ""),
                 w.get("example_en_3", ""),
             ))
-            inserted += conn.total_changes
+            if cursor.rowcount > 0:
+                inserted += 1
         except Exception:
             continue
     
@@ -194,24 +197,35 @@ def main():
         # Phrasal verb ratio by level
         phrasal_ratio = {"A1": 0.0, "A2": 0.05, "B1": 0.2, "B2": 0.3, "C1": 0.25, "C2": 0.15}[level]
         
-        batches_needed = (remaining + BATCH_SIZE - 1) // BATCH_SIZE
-        print(f"\n📝 {level}: need {remaining} more words ({batches_needed} batches)")
-
-        for batch in range(1, batches_needed + 1):
-            print(f"  🔄 Batch {batch}/{batches_needed}...", end=" ", flush=True)
-            words = generate_batch(level, batch, batches_needed, phrasal_ratio)
+        batches_attempted = 0
+        while remaining > 0:
+            batches_attempted += 1
+            print(f"  🔄 Batch {batches_attempted} (need {remaining} more)...", end=" ", flush=True)
+            words = generate_batch(level, batches_attempted, 50, phrasal_ratio)
             
             if words:
                 before = conn.execute("SELECT COUNT(*) FROM words").fetchone()[0]
-                insert_words(conn, words, level)
+                
+                # Recalculate remaining exactly for this batch limit
+                current_now = conn.execute("SELECT COUNT(*) FROM words WHERE cefr_level = ?", (level,)).fetchone()[0]
+                rem_now = target_count - current_now
+                
+                insert_words(conn, words, level, limit=rem_now)
                 after = conn.execute("SELECT COUNT(*) FROM words").fetchone()[0]
                 added = after - before
                 total_generated += added
                 print(f"✅ +{added} words (total: {after})")
+                
+                remaining = target_count - after
             else:
-                print("❌ failed")
+                print("❌ failed or empty batch returned")
+                time.sleep(2)
             
-            time.sleep(1)  # Rate limiting
+            time.sleep(1.5)  # Rate limiting
+            
+            if batches_attempted >= 20:
+                print(f"⚠️ Max batch attempts reached for {level}. Moving on.")
+                break
 
     # Final stats
     print("\n" + "="*50)

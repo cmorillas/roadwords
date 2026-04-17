@@ -15,7 +15,7 @@ import sys
 import time
 import urllib.request
 
-DB_PATH = "/home/cesar/php/tutor/RoadWordsApp/app/src/main/assets/vocabulary.db"
+DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "assets", "vocabulary.db"))
 GEMINI_MODEL = "gemini-2.5-flash"
 BATCH_SIZE = 35
 
